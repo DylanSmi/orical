@@ -49,7 +49,15 @@ export default async function handler(req, res) {
 
     res.status(200).json({ word });
   } catch (err) {
-    // Don't leak internals to the browser; the page falls back gracefully.
-    res.status(500).json({ error: "The Oracle is silent." });
+    // Temporary diagnostics — surfaces the underlying cause so we can debug.
+    res.status(500).json({
+      error: "The Oracle is silent.",
+      debug: {
+        name: err && err.name,
+        status: err && err.status,
+        message: err && err.message,
+        hasKey: Boolean(process.env.ANTHROPIC_API_KEY),
+      },
+    });
   }
 }
