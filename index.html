@@ -27,8 +27,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
+    justify-content: flex-start;
+    padding: 56px 24px 72px;
     overflow-x: hidden;
     position: relative;
   }
@@ -189,6 +189,142 @@
     font-style: italic;
     text-align: center;
   }
+
+  /* ---- Tarot section ---- */
+  .divider {
+    z-index: 1;
+    width: min(440px, 82%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 72px 0 40px;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line), transparent);
+  }
+  .divider span {
+    color: var(--brass);
+    font-size: 0.68rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .tarot-title {
+    z-index: 1;
+    font-size: clamp(1.9rem, 6vw, 2.8rem);
+    font-weight: 400;
+    font-style: italic;
+    margin: 0 0 10px;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--parchment);
+  }
+
+  .card {
+    z-index: 1;
+    width: clamp(212px, 62vw, 244px);
+    height: clamp(340px, 99vw, 390px);
+    perspective: 1200px;
+    margin: 8px 0 26px;
+    cursor: pointer;
+    background: none;
+    padding: 0;
+    border: none;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(.2,.7,.2,1);
+    transform-style: preserve-3d;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-inner { transition: none; }
+  }
+  .card.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 22px;
+    text-align: center;
+    border: 1px solid var(--brass);
+    box-shadow: 0 14px 44px #000000aa, inset 0 0 44px #00000066;
+  }
+  .card-face .frame {
+    position: absolute;
+    inset: 10px;
+    border-radius: 9px;
+    pointer-events: none;
+  }
+  .card-back {
+    background: radial-gradient(circle at 50% 42%, #1a2a26 0%, #0b1512 60%, #060b09 100%);
+  }
+  .card-back .frame { border: 1px dashed #4a4028; opacity: 0.6; }
+  .card-back .emblem {
+    font-size: 3rem;
+    color: var(--brass-soft);
+    text-shadow: 0 0 22px var(--glow);
+  }
+  .card-back .back-label {
+    margin-top: 14px;
+    font-size: 0.66rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .card-front {
+    transform: rotateY(180deg);
+    background: radial-gradient(circle at 50% 28%, #17130b 0%, #0d0a06 70%, #070604 100%);
+  }
+  .card-front .frame { border: 1px solid var(--line); }
+  .numeral {
+    color: var(--brass);
+    letter-spacing: 0.18em;
+    font-size: 0.82rem;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .symbol {
+    font-size: 3.4rem;
+    line-height: 1;
+    margin: 12px 0;
+    filter: drop-shadow(0 0 14px #8fe6d455);
+  }
+  .card-front.reversed .symbol { transform: rotate(180deg); }
+  .card-name {
+    font-size: 1.35rem;
+    font-style: italic;
+    color: #f4fffb;
+    text-shadow: 0 0 18px var(--glow);
+    line-height: 1.15;
+  }
+  .orientation {
+    margin-top: 7px;
+    font-size: 0.66rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--brass);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  .orientation.rev { color: #e0a37a; }
+  .meaning {
+    margin-top: 13px;
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.45;
+    max-width: 24ch;
+  }
 </style>
 </head>
 <body>
@@ -211,6 +347,36 @@
   </div>
 
   <p class="hint">The Oracle speaks in one word — it could be any word at all.</p>
+
+  <div class="divider"><span>Tarot</span></div>
+
+  <p class="eyebrow">Major Arcana &nbsp;·&nbsp; One Card</p>
+  <h2 class="tarot-title">The Draw</h2>
+  <p class="subtitle">Turn a card of the Major Arcana. Its meaning shifts upright or reversed.</p>
+
+  <div class="card" id="card" role="button" tabindex="0" aria-label="Draw a tarot card">
+    <div class="card-inner">
+      <div class="card-face card-back">
+        <div class="frame"></div>
+        <div class="emblem">✦</div>
+        <div class="back-label">Draw</div>
+      </div>
+      <div class="card-face card-front" id="cardFront">
+        <div class="frame"></div>
+        <div class="numeral" id="cardNum"></div>
+        <div class="symbol" id="cardSym"></div>
+        <div class="card-name" id="cardName"></div>
+        <div class="orientation" id="cardOrient"></div>
+        <div class="meaning" id="cardMeaning"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="draw">Draw a card</button>
+  </div>
+
+  <p class="hint">Draw a card of the Major Arcana and read what it reveals.</p>
 
 <script>
 const WORDS = [
@@ -305,6 +471,91 @@ function consult() {
 askBtn.addEventListener("click", consult);
 input.addEventListener("keydown", (e) => { if (e.key === "Enter") consult(); });
 input.focus();
+
+// ---- Tarot: the 22 Major Arcana ----
+const ARCANA = [
+  { n: "0",     name: "The Fool",           sym: "🃏", up: "New beginnings, spontaneity, a leap of faith.", rev: "Recklessness, hesitation, a leap held back." },
+  { n: "I",     name: "The Magician",       sym: "🎩", up: "Manifestation, skill, focused will.",           rev: "Manipulation, scattered energy, untapped talent." },
+  { n: "II",    name: "The High Priestess", sym: "🌙", up: "Intuition, mystery, the inner voice.",          rev: "Secrets withheld, instinct ignored." },
+  { n: "III",   name: "The Empress",        sym: "🌸", up: "Abundance, nurturing, creative flourishing.",   rev: "Creative block, dependence, neglect." },
+  { n: "IV",    name: "The Emperor",        sym: "👑", up: "Structure, authority, steady ground.",          rev: "Control, rigidity, domination." },
+  { n: "V",     name: "The Hierophant",     sym: "🗝️", up: "Tradition, guidance, shared belief.",           rev: "Rebellion, your own unconventional path." },
+  { n: "VI",    name: "The Lovers",         sym: "💞", up: "Union, alignment, a meaningful choice.",         rev: "Discord, imbalance, values misaligned." },
+  { n: "VII",   name: "The Chariot",        sym: "🏇", up: "Willpower, momentum, hard-won victory.",         rev: "Lost control, scattered direction." },
+  { n: "VIII",  name: "Strength",           sym: "🦁", up: "Courage, patience, quiet inner power.",          rev: "Self-doubt, raw emotion, force misspent." },
+  { n: "IX",    name: "The Hermit",         sym: "🏮", up: "Solitude, reflection, inner guidance.",          rev: "Isolation, withdrawal, lost among others." },
+  { n: "X",     name: "Wheel of Fortune",   sym: "🎡", up: "Change, cycles, a turning point.",               rev: "Resistance, a run of ill fortune." },
+  { n: "XI",    name: "Justice",            sym: "⚖️", up: "Fairness, truth, accountability.",              rev: "Injustice, dishonesty, avoidance." },
+  { n: "XII",   name: "The Hanged Man",     sym: "🙃", up: "Surrender, a new perspective, a needed pause.",  rev: "Stalling, resistance, indecision." },
+  { n: "XIII",  name: "Death",              sym: "💀", up: "Endings, transformation, release.",              rev: "Clinging to the past, stagnation." },
+  { n: "XIV",   name: "Temperance",         sym: "🍷", up: "Balance, patience, the middle way.",             rev: "Excess, imbalance, acting in haste." },
+  { n: "XV",    name: "The Devil",          sym: "😈", up: "Temptation, attachment, the shadow self.",       rev: "Release, breaking free of what binds you." },
+  { n: "XVI",   name: "The Tower",          sym: "🗼", up: "Sudden upheaval, revelation, collapse.",         rev: "Fear of change, disaster narrowly delayed." },
+  { n: "XVII",  name: "The Star",           sym: "⭐", up: "Hope, renewal, quiet inspiration.",             rev: "Doubt, despair, a lost connection." },
+  { n: "XVIII", name: "The Moon",           sym: "🌕", up: "Illusion, intuition, the unknown.",              rev: "Confusion lifting, a hidden truth surfacing." },
+  { n: "XIX",   name: "The Sun",            sym: "☀️", up: "Joy, vitality, success in the open.",           rev: "A passing gloom, optimism dimmed." },
+  { n: "XX",    name: "Judgement",          sym: "🎺", up: "Reckoning, awakening, a call to rise.",          rev: "Self-doubt, ignoring the call." },
+  { n: "XXI",   name: "The World",          sym: "🌍", up: "Completion, wholeness, fulfillment.",            rev: "Unfinished business, a delayed ending." }
+];
+
+const card = document.getElementById("card");
+const cardFront = document.getElementById("cardFront");
+const cardNum = document.getElementById("cardNum");
+const cardSym = document.getElementById("cardSym");
+const cardName = document.getElementById("cardName");
+const cardOrient = document.getElementById("cardOrient");
+const cardMeaning = document.getElementById("cardMeaning");
+const drawBtn = document.getElementById("draw");
+
+function randInt(max) {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return arr[0] % max;
+}
+
+function renderCard() {
+  const c = ARCANA[randInt(ARCANA.length)];
+  const reversed = randInt(2) === 1;
+  cardNum.textContent = "— " + c.n + " —";
+  cardSym.textContent = c.sym;
+  cardName.textContent = c.name;
+  cardMeaning.textContent = reversed ? c.rev : c.up;
+  cardOrient.textContent = reversed ? "Reversed" : "Upright";
+  cardOrient.classList.toggle("rev", reversed);
+  cardFront.classList.toggle("reversed", reversed);
+}
+
+let cardDrawn = false;
+let cardBusy = false;
+function drawCard() {
+  if (cardBusy) return;
+  cardBusy = true;
+  drawBtn.textContent = "Draw again";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!cardDrawn || reduce) {
+    renderCard();
+    card.classList.add("flipped");
+    cardDrawn = true;
+    cardBusy = false;
+    return;
+  }
+
+  // Flip back to the card's face, swap in a new card, then flip forward.
+  card.classList.remove("flipped");
+  setTimeout(() => {
+    renderCard();
+    card.classList.add("flipped");
+    cardBusy = false;
+  }, 720);
+}
+
+drawBtn.addEventListener("click", drawCard);
+card.addEventListener("click", drawCard);
+card.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drawCard(); }
+});
 
 // Twinkling starfield
 const canvas = document.querySelector(".stars");
