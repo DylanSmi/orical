@@ -1,0 +1,9 @@
+{
+  "name": "oracle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Oracle — one-word answers to any question",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0"
+  }
+}
