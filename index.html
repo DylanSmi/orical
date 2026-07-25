@@ -325,6 +325,49 @@
     line-height: 1.45;
     max-width: 24ch;
   }
+
+  /* ---- Lost Things: the Seeker's Compass ---- */
+  .compass {
+    position: relative;
+    z-index: 1;
+    width: clamp(210px, 62vw, 250px);
+    aspect-ratio: 1;
+    margin: 6px 0 26px;
+    filter: drop-shadow(0 10px 34px #00000088);
+  }
+  .compass-face, .needle {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .needle {
+    transition: transform 2.2s cubic-bezier(.15,.9,.2,1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .needle { transition: none; }
+  }
+  .reading {
+    z-index: 1;
+    margin: 6px 0 0;
+    max-width: 34ch;
+    text-align: center;
+    color: var(--parchment);
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    min-height: 1.5em;
+    text-wrap: balance;
+  }
+  .reading .dir {
+    color: var(--brass-soft);
+    text-shadow: 0 0 16px var(--glow);
+    font-style: normal;
+  }
+  .reading.placeholder {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
 </style>
 </head>
 <body>
@@ -375,6 +418,42 @@
   </div>
 
   <p class="hint">Draw a card of the Major Arcana and read what it reveals.</p>
+
+  <div class="divider"><span>Lost Things</span></div>
+
+  <p class="eyebrow">The Seeker's Compass &nbsp;·&nbsp; Point the Way</p>
+  <h2 class="tarot-title">What's Lost</h2>
+  <p class="subtitle">Name what you have lost, and the needle will turn toward it.</p>
+
+  <div class="compass">
+    <svg class="compass-face" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="97" fill="#0d1512" stroke="#2a271d" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="90" fill="none" stroke="#c8a24a" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="82" fill="none" stroke="#4a4028"
+              stroke-width="7" stroke-dasharray="1 7.58" stroke-linecap="round" opacity="0.7"/>
+      <circle cx="100" cy="100" r="66" fill="none" stroke="#2a271d" stroke-width="1"/>
+      <g fill="#e6c880" font-family="'Helvetica Neue', Arial, sans-serif"
+         font-size="15" font-weight="bold" text-anchor="middle">
+        <text x="100" y="35">N</text>
+        <text x="171" y="106">E</text>
+        <text x="100" y="179">S</text>
+        <text x="29" y="106">W</text>
+      </g>
+    </svg>
+    <svg class="needle" id="needle" viewBox="0 0 200 200" aria-hidden="true">
+      <polygon points="100,22 90,100 110,100" fill="#c8a24a"/>
+      <polygon points="100,178 90,100 110,100" fill="#5a5647"/>
+      <circle cx="100" cy="100" r="9" fill="#0d1512" stroke="#c8a24a" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <input id="lost" type="text" placeholder="What have you lost?" autocomplete="off" aria-label="What you have lost" />
+    <button id="seek">Point the way</button>
+  </div>
+
+  <p class="reading placeholder" id="reading">The needle waits, still.</p>
+  <p class="hint">A whimsical divination — the compass points where the mystery lies.</p>
 
 <script>
 const WORDS = [
@@ -554,6 +633,98 @@ card.addEventListener("click", drawCard);
 card.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); drawCard(); }
 });
+
+// ---- Lost Things: the Seeker's Compass ----
+const COMPASS16 = [
+  "north", "north-northeast", "northeast", "east-northeast",
+  "east", "east-southeast", "southeast", "south-southeast",
+  "south", "south-southwest", "southwest", "west-southwest",
+  "west", "west-northwest", "northwest", "north-northwest"
+];
+const DISTANCES = [
+  "closer than you think", "a short walk away", "farther than you'd hope",
+  "just out of reach", "near, yet hidden", "a good journey off",
+  "almost underfoot", "beyond the paths you usually take"
+];
+const PLACES = [
+  "low to the ground, where small things gather",
+  "higher than you last thought to look",
+  "near something warm",
+  "among things you rarely move",
+  "where fabric meets shadow",
+  "close to water, or a cup",
+  "beneath something you trust",
+  "where you set things down and forget",
+  "in the keeping of someone else",
+  "tangled with what you last wore",
+  "behind a thing that opens and closes",
+  "in the pocket of a former day"
+];
+
+const lostInput = document.getElementById("lost");
+const seekBtn = document.getElementById("seek");
+const needle = document.getElementById("needle");
+const reading = document.getElementById("reading");
+
+// Deterministic hash so the same lost item always points the same way.
+function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+let compassRot = 0;
+let seeking = false;
+function seek() {
+  if (seeking) return;
+  const item = lostInput.value.trim();
+  if (!item) {
+    lostInput.focus();
+    lostInput.placeholder = "First, name what you lost…";
+    return;
+  }
+  seeking = true;
+  seekBtn.disabled = true;
+
+  const h = hashStr(item.toLowerCase());
+  const bearing = h % 360;
+  const dir = COMPASS16[Math.round(bearing / 22.5) % 16];
+  const dist = DISTANCES[h % DISTANCES.length];
+  const place = PLACES[Math.floor(h / 7) % PLACES.length];
+
+  const label = item.replace(/[<>]/g, ""); // keep the phrasing tidy
+  const settle = () => {
+    reading.classList.remove("placeholder");
+    reading.innerHTML =
+      "Your " + label + " lies to the <span class=\"dir\">" + dir + "</span>. " +
+      dist.charAt(0).toUpperCase() + dist.slice(1) + " — " + place + ".";
+    seeking = false;
+    seekBtn.disabled = false;
+  };
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) {
+    compassRot = bearing;
+    needle.style.transform = "rotate(" + bearing + "deg)";
+    settle();
+    return;
+  }
+
+  // Spin forward through ~3 full turns, then land on the bearing.
+  const currentMod = ((compassRot % 360) + 360) % 360;
+  const delta = (bearing - currentMod + 360) % 360;
+  compassRot += 3 * 360 + delta;
+  needle.style.transform = "rotate(" + compassRot + "deg)";
+  reading.classList.add("placeholder");
+  reading.textContent = "The needle turns…";
+  setTimeout(settle, 2200);
+}
+
+seekBtn.addEventListener("click", seek);
+lostInput.addEventListener("keydown", (e) => { if (e.key === "Enter") seek(); });
 
 // Twinkling starfield
 const canvas = document.querySelector(".stars");
