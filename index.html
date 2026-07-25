@@ -210,7 +210,7 @@
     <button id="ask">Consult</button>
   </div>
 
-  <p class="hint">The Oracle contemplates your question and speaks a single word.</p>
+  <p class="hint">The Oracle speaks in one word — it could be any word at all.</p>
 
 <script>
 const WORDS = [
@@ -245,32 +245,6 @@ function randomWord() {
   return WORDS[arr[0] % WORDS.length];
 }
 
-// Ask the AI Oracle (server-side function). Returns a word, or null if the
-// endpoint is unavailable — e.g. when the page runs outside Vercel.
-async function askAI(question) {
-  try {
-    const res = await fetch("/api/oracle", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data && typeof data.word === "string" ? data.word : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-function reveal(word) {
-  answerEl.textContent = word;
-  orb.classList.remove("thinking");
-  orb.style.transform = "scale(1.05)";
-  setTimeout(() => (orb.style.transform = ""), 320);
-  busy = false;
-  askBtn.disabled = false;
-}
-
 let busy = false;
 function consult() {
   if (busy) return;
@@ -286,28 +260,27 @@ function consult() {
   answerEl.classList.remove("placeholder");
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Ask the AI and run the suspense animation at the same time; reveal the
-  // real answer once both the response has arrived and the orb has churned
-  // for a moment. If the AI is unavailable, fall back to a random word.
-  const aiPromise = askAI(q);
-
   if (reduce) {
-    aiPromise.then((word) => reveal(word || randomWord()));
+    answerEl.textContent = randomWord();
+    orb.classList.remove("thinking");
+    busy = false;
+    askBtn.disabled = false;
     return;
   }
 
   let ticks = 0;
-  const minTicks = 10;
-  let settled = false;
-  const interval = setInterval(async () => {
+  const totalTicks = 13;
+  const interval = setInterval(() => {
     answerEl.textContent = randomWord();
     ticks++;
-    if (ticks >= minTicks && !settled) {
-      settled = true;
+    if (ticks >= totalTicks) {
       clearInterval(interval);
-      const word = await aiPromise;
-      reveal(word || randomWord());
+      answerEl.textContent = randomWord();
+      orb.classList.remove("thinking");
+      orb.style.transform = "scale(1.05)";
+      setTimeout(() => (orb.style.transform = ""), 320);
+      busy = false;
+      askBtn.disabled = false;
     }
   }, 80);
 }
