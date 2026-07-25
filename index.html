@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Oracle</title>
+<style>
+  :root {
+    --bg: #0b0a1a;
+    --glow: #b48cff;
+    --glow2: #7af0ff;
+    --text: #ece9ff;
+    --muted: #9a94c7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Georgia", "Times New Roman", serif;
+    background: radial-gradient(circle at 50% 20%, #1a1440 0%, var(--bg) 60%, #050411 100%);
+    color: var(--text);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-x: hidden;
+  }
+  .stars {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    letter-spacing: 0.15em;
+    font-weight: normal;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, var(--glow), var(--glow2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 1;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 34px;
+    font-size: 0.95rem;
+    z-index: 1;
+    text-align: center;
+  }
+  .orb {
+    width: clamp(180px, 45vw, 260px);
+    height: clamp(180px, 45vw, 260px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffffff33, #6c4bd044 40%, #1a0f4066 70%, #0a0620 100%);
+    box-shadow: 0 0 60px #7a5cffaa, inset 0 0 60px #b48cff55;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 34px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .orb.thinking {
+    animation: pulse 0.7s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 60px #7a5cffaa, inset 0 0 60px #b48cff55; }
+    50% { box-shadow: 0 0 100px #7af0ffcc, inset 0 0 80px #7af0ff88; }
+  }
+  .answer {
+    font-size: clamp(1.4rem, 6vw, 2.4rem);
+    letter-spacing: 0.05em;
+    word-break: break-word;
+    color: #fff;
+    text-shadow: 0 0 18px var(--glow2);
+    min-height: 1.2em;
+  }
+  .answer.placeholder {
+    font-size: 1.1rem;
+    color: var(--muted);
+    text-shadow: none;
+    font-style: italic;
+  }
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 460px;
+    z-index: 1;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  input {
+    flex: 1 1 240px;
+    padding: 14px 18px;
+    font-size: 1rem;
+    font-family: inherit;
+    border-radius: 30px;
+    border: 1px solid #5a4a9a;
+    background: #150f33cc;
+    color: var(--text);
+    outline: none;
+  }
+  input::placeholder { color: #7a72ad; }
+  input:focus { border-color: var(--glow2); box-shadow: 0 0 12px #7af0ff55; }
+  button {
+    padding: 14px 26px;
+    font-size: 1rem;
+    font-family: inherit;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--glow), var(--glow2));
+    color: #12042a;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .hint {
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    z-index: 1;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+  <canvas class="stars"></canvas>
+  <h1>The Oracle</h1>
+  <p class="subtitle">Ask any question. Receive a single word. Interpret it as you will.</p>
+
+  <div class="orb" id="orb">
+    <div class="answer placeholder" id="answer">…</div>
+  </div>
+
+  <div class="controls">
+    <input id="question" type="text" placeholder="Ask the Oracle a question…" autocomplete="off" />
+    <button id="ask">Ask</button>
+  </div>
+
+  <p class="hint">The Oracle speaks in one word — it could be anything.</p>
+
+<script>
+// A broad vocabulary spanning many kinds of words so the answer truly could be anything.
+const WORDS = [
+  "yes","no","maybe","soon","never","always","perhaps","wait","go","stop","return","begin",
+  "moon","river","fire","ember","storm","tide","dawn","dusk","frost","echo","shadow","light",
+  "stone","feather","thread","mirror","door","key","bridge","road","compass","anchor","lantern","seed",
+  "patience","courage","doubt","hope","fear","joy","sorrow","wonder","silence","chaos","balance","chance",
+  "forward","backward","inward","upward","elsewhere","home","away","beyond","within","between","beneath","above",
+  "listen","release","hold","seek","rest","move","trust","wait","choose","forgive","remember","forget",
+  "raven","fox","whale","moth","serpent","owl","wolf","bee","spider","crane","lynx","hare",
+  "gold","salt","iron","glass","ash","clay","amber","jade","copper","velvet","paper","smoke",
+  "north","south","east","west","zenith","abyss","horizon","threshold","crossroads","summit","hollow","meadow",
+  "rain","snow","thunder","wind","sun","star","comet","eclipse","aurora","mist","cloud","rainbow",
+  "truth","lie","secret","riddle","promise","question","answer","mystery","omen","sign","fate","luck",
+  "clockwork","spiral","circle","fracture","knot","weave","current","spark","pulse","drift","bloom","wither",
+  "seven","thirteen","zero","infinity","half","double","none","all","one","many","few","enough",
+  "whisper","shout","hum","laugh","sigh","dream","wake","sleep","breathe","wander","arrive","depart",
+  "salted","golden","hidden","open","broken","whole","ancient","new","distant","near","empty","full",
+  "phoenix","dragon","kraken","griffin","sphinx","chimera","basilisk","leviathan","hydra","cerberus","pegasus","unicorn",
+  "coffee","umbrella","clock","candle","letter","garden","window","staircase","harbor","meadow","tunnel","attic",
+  "brave","kind","clever","patient","bold","gentle","wild","quiet","fierce","calm","restless","free"
+];
+
+const answerEl = document.getElementById("answer");
+const orb = document.getElementById("orb");
+const input = document.getElementById("question");
+const askBtn = document.getElementById("ask");
+
+function randomWord() {
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return WORDS[arr[0] % WORDS.length];
+}
+
+let busy = false;
+function consult() {
+  if (busy) return;
+  const q = input.value.trim();
+  if (!q) {
+    input.focus();
+    input.placeholder = "First, ask a question…";
+    return;
+  }
+  busy = true;
+  askBtn.disabled = true;
+  orb.classList.add("thinking");
+  answerEl.classList.remove("placeholder");
+
+  // Cycle through words to build suspense, then land on the final answer.
+  let ticks = 0;
+  const totalTicks = 12;
+  const interval = setInterval(() => {
+    answerEl.textContent = randomWord();
+    ticks++;
+    if (ticks >= totalTicks) {
+      clearInterval(interval);
+      answerEl.textContent = randomWord();
+      orb.classList.remove("thinking");
+      orb.style.transform = "scale(1.06)";
+      setTimeout(() => (orb.style.transform = ""), 300);
+      busy = false;
+      askBtn.disabled = false;
+    }
+  }, 80);
+}
+
+askBtn.addEventListener("click", consult);
+input.addEventListener("keydown", (e) => { if (e.key === "Enter") consult(); });
+input.focus();
+
+// Twinkling starfield background.
+const canvas = document.querySelector(".stars");
+const ctx = canvas.getContext("2d");
+let stars = [];
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({ length: 90 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.4 + 0.3,
+    a: Math.random(),
+    s: Math.random() * 0.02 + 0.005
+  }));
+}
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const st of stars) {
+    st.a += st.s;
+    const alpha = 0.4 + 0.6 * Math.abs(Math.sin(st.a));
+    ctx.beginPath();
+    ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200, 190, 255, ${alpha})`;
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+window.addEventListener("resize", resize);
+resize();
+draw();
+</script>
+</body>
+</html>
