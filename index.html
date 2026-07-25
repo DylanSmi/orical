@@ -6,166 +6,220 @@
 <title>The Oracle</title>
 <style>
   :root {
-    --bg: #0b0a1a;
-    --glow: #b48cff;
-    --glow2: #7af0ff;
-    --text: #ece9ff;
-    --muted: #9a94c7;
+    --ink: #0c0e0d;
+    --ink-2: #14100a;
+    --obsidian: #070806;
+    --brass: #c8a24a;
+    --brass-soft: #e6c880;
+    --glow: #8fe6d4;
+    --parchment: #efe7d2;
+    --muted: #97907c;
+    --line: #2a271d;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
   body {
-    font-family: "Georgia", "Times New Roman", serif;
-    background: radial-gradient(circle at 50% 20%, #1a1440 0%, var(--bg) 60%, #050411 100%);
-    color: var(--text);
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    background:
+      radial-gradient(120% 90% at 50% 8%, #1a1610 0%, var(--ink) 42%, var(--obsidian) 100%);
+    color: var(--parchment);
     min-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 40px 24px;
     overflow-x: hidden;
+    position: relative;
   }
-  .stars {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  .eyebrow {
+    z-index: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    font-size: 0.68rem;
+    color: var(--brass);
+    margin: 0 0 14px;
+    padding-left: 0.42em;
+    font-family: "Helvetica Neue", Arial, sans-serif;
   }
   h1 {
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
-    letter-spacing: 0.15em;
-    font-weight: normal;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    background: linear-gradient(90deg, var(--glow), var(--glow2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
     z-index: 1;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    margin: 0 0 10px;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--parchment);
   }
   .subtitle {
-    color: var(--muted);
-    font-style: italic;
-    margin-bottom: 34px;
-    font-size: 0.95rem;
     z-index: 1;
+    color: var(--muted);
+    font-size: 0.98rem;
+    margin: 0 0 42px;
     text-align: center;
+    max-width: 34ch;
+    line-height: 1.5;
+    text-wrap: balance;
+  }
+
+  .orb-wrap {
+    z-index: 1;
+    position: relative;
+    margin-bottom: 44px;
+    display: grid;
+    place-items: center;
+  }
+  /* brass ring around the orb */
+  .ring {
+    position: absolute;
+    width: clamp(230px, 62vw, 340px);
+    height: clamp(230px, 62vw, 340px);
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    box-shadow: inset 0 0 0 1px #00000060;
+  }
+  .ring::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    border: 1px dashed #4a4028;
+    opacity: 0.5;
   }
   .orb {
-    width: clamp(180px, 45vw, 260px);
-    height: clamp(180px, 45vw, 260px);
+    width: clamp(200px, 54vw, 296px);
+    height: clamp(200px, 54vw, 296px);
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #ffffff33, #6c4bd044 40%, #1a0f4066 70%, #0a0620 100%);
-    box-shadow: 0 0 60px #7a5cffaa, inset 0 0 60px #b48cff55;
+    background:
+      radial-gradient(circle at 36% 30%, #ffffff22 0%, #1c2a2733 26%, #0b1512 62%, #050807 100%);
+    box-shadow:
+      0 0 70px #8fe6d433,
+      inset 0 2px 34px #ffffff14,
+      inset 0 -20px 60px #000000cc;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 20px;
-    margin-bottom: 34px;
+    padding: 22px;
     position: relative;
-    z-index: 1;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-    animation: float 6s ease-in-out infinite;
+    animation: float 7s ease-in-out infinite;
+    transition: transform 0.4s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orb { animation: none; }
   }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+    50% { transform: translateY(-10px); }
   }
-  .orb.thinking {
-    animation: pulse 0.7s ease-in-out infinite;
-  }
+  .orb.thinking { animation: pulse 0.75s ease-in-out infinite; }
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 60px #7a5cffaa, inset 0 0 60px #b48cff55; }
-    50% { box-shadow: 0 0 100px #7af0ffcc, inset 0 0 80px #7af0ff88; }
+    0%, 100% { box-shadow: 0 0 70px #8fe6d433, inset 0 2px 34px #ffffff14, inset 0 -20px 60px #000000cc; }
+    50%      { box-shadow: 0 0 120px #8fe6d4aa, inset 0 2px 34px #ffffff22, inset 0 -20px 60px #000000cc; }
   }
   .answer {
-    font-size: clamp(1.4rem, 6vw, 2.4rem);
-    letter-spacing: 0.05em;
+    font-size: clamp(1.6rem, 7vw, 2.8rem);
+    font-style: italic;
+    letter-spacing: 0.01em;
     word-break: break-word;
-    color: #fff;
-    text-shadow: 0 0 18px var(--glow2);
+    color: #f4fffb;
+    text-shadow: 0 0 22px var(--glow);
     min-height: 1.2em;
+    line-height: 1.1;
   }
   .answer.placeholder {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-style: normal;
     color: var(--muted);
     text-shadow: none;
-    font-style: italic;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
   }
+
   .controls {
+    z-index: 1;
     display: flex;
     gap: 10px;
     width: 100%;
-    max-width: 460px;
-    z-index: 1;
+    max-width: 480px;
     flex-wrap: wrap;
     justify-content: center;
   }
   input {
-    flex: 1 1 240px;
-    padding: 14px 18px;
+    flex: 1 1 250px;
+    padding: 15px 20px;
     font-size: 1rem;
     font-family: inherit;
-    border-radius: 30px;
-    border: 1px solid #5a4a9a;
-    background: #150f33cc;
-    color: var(--text);
+    border-radius: 2px;
+    border: 1px solid var(--line);
+    background: #0000004d;
+    color: var(--parchment);
     outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  input::placeholder { color: #7a72ad; }
-  input:focus { border-color: var(--glow2); box-shadow: 0 0 12px #7af0ff55; }
+  input::placeholder { color: #6f6a58; font-style: italic; }
+  input:focus { border-color: var(--brass); box-shadow: 0 0 0 1px #c8a24a55; }
   button {
-    padding: 14px 26px;
-    font-size: 1rem;
-    font-family: inherit;
-    border-radius: 30px;
-    border: none;
+    padding: 15px 30px;
+    font-size: 0.78rem;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    border-radius: 2px;
+    border: 1px solid var(--brass);
     cursor: pointer;
-    background: linear-gradient(90deg, var(--glow), var(--glow2));
-    color: #12042a;
-    font-weight: bold;
-    letter-spacing: 0.03em;
-    transition: transform 0.15s ease, filter 0.15s ease;
+    background: transparent;
+    color: var(--brass-soft);
+    transition: background 0.2s ease, color 0.2s ease, transform 0.12s ease;
   }
-  button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  button:hover { background: var(--brass); color: var(--ink); }
   button:active { transform: translateY(1px); }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; background: transparent; color: var(--brass-soft); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+
   .hint {
-    margin-top: 22px;
+    z-index: 1;
+    margin: 26px 0 0;
     color: var(--muted);
     font-size: 0.8rem;
-    z-index: 1;
     font-style: italic;
+    text-align: center;
   }
 </style>
 </head>
 <body>
   <canvas class="stars"></canvas>
-  <h1>The Oracle</h1>
-  <p class="subtitle">Ask any question. Receive a single word. Interpret it as you will.</p>
 
-  <div class="orb" id="orb">
-    <div class="answer placeholder" id="answer">…</div>
+  <p class="eyebrow">Divination &nbsp;·&nbsp; One Word</p>
+  <h1>The Oracle</h1>
+  <p class="subtitle">Ask any question and receive a single word. It could be anything — the meaning is yours to draw out.</p>
+
+  <div class="orb-wrap">
+    <div class="ring"></div>
+    <div class="orb" id="orb">
+      <div class="answer placeholder" id="answer">Awaiting</div>
+    </div>
   </div>
 
   <div class="controls">
-    <input id="question" type="text" placeholder="Ask the Oracle a question…" autocomplete="off" />
-    <button id="ask">Ask</button>
+    <input id="question" type="text" placeholder="Ask the Oracle a question…" autocomplete="off" aria-label="Your question for the Oracle" />
+    <button id="ask">Consult</button>
   </div>
 
-  <p class="hint">The Oracle speaks in one word — it could be anything.</p>
+  <p class="hint">The Oracle speaks in one word — it could be any word at all.</p>
 
 <script>
-// A broad vocabulary spanning many kinds of words so the answer truly could be anything.
 const WORDS = [
   "yes","no","maybe","soon","never","always","perhaps","wait","go","stop","return","begin",
   "moon","river","fire","ember","storm","tide","dawn","dusk","frost","echo","shadow","light",
   "stone","feather","thread","mirror","door","key","bridge","road","compass","anchor","lantern","seed",
   "patience","courage","doubt","hope","fear","joy","sorrow","wonder","silence","chaos","balance","chance",
   "forward","backward","inward","upward","elsewhere","home","away","beyond","within","between","beneath","above",
-  "listen","release","hold","seek","rest","move","trust","wait","choose","forgive","remember","forget",
+  "listen","release","hold","seek","rest","move","trust","choose","forgive","remember","forget","yield",
   "raven","fox","whale","moth","serpent","owl","wolf","bee","spider","crane","lynx","hare",
   "gold","salt","iron","glass","ash","clay","amber","jade","copper","velvet","paper","smoke",
   "north","south","east","west","zenith","abyss","horizon","threshold","crossroads","summit","hollow","meadow",
@@ -176,7 +230,7 @@ const WORDS = [
   "whisper","shout","hum","laugh","sigh","dream","wake","sleep","breathe","wander","arrive","depart",
   "salted","golden","hidden","open","broken","whole","ancient","new","distant","near","empty","full",
   "phoenix","dragon","kraken","griffin","sphinx","chimera","basilisk","leviathan","hydra","cerberus","pegasus","unicorn",
-  "coffee","umbrella","clock","candle","letter","garden","window","staircase","harbor","meadow","tunnel","attic",
+  "coffee","umbrella","clock","candle","letter","garden","window","staircase","harbor","tunnel","attic","hearth",
   "brave","kind","clever","patient","bold","gentle","wild","quiet","fierce","calm","restless","free"
 ];
 
@@ -205,9 +259,17 @@ function consult() {
   orb.classList.add("thinking");
   answerEl.classList.remove("placeholder");
 
-  // Cycle through words to build suspense, then land on the final answer.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) {
+    answerEl.textContent = randomWord();
+    orb.classList.remove("thinking");
+    busy = false;
+    askBtn.disabled = false;
+    return;
+  }
+
   let ticks = 0;
-  const totalTicks = 12;
+  const totalTicks = 13;
   const interval = setInterval(() => {
     answerEl.textContent = randomWord();
     ticks++;
@@ -215,8 +277,8 @@ function consult() {
       clearInterval(interval);
       answerEl.textContent = randomWord();
       orb.classList.remove("thinking");
-      orb.style.transform = "scale(1.06)";
-      setTimeout(() => (orb.style.transform = ""), 300);
+      orb.style.transform = "scale(1.05)";
+      setTimeout(() => (orb.style.transform = ""), 320);
       busy = false;
       askBtn.disabled = false;
     }
@@ -227,29 +289,30 @@ askBtn.addEventListener("click", consult);
 input.addEventListener("keydown", (e) => { if (e.key === "Enter") consult(); });
 input.focus();
 
-// Twinkling starfield background.
+// Twinkling starfield
 const canvas = document.querySelector(".stars");
 const ctx = canvas.getContext("2d");
 let stars = [];
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  stars = Array.from({ length: 90 }, () => ({
+  const count = Math.min(110, Math.floor((canvas.width * canvas.height) / 14000));
+  stars = Array.from({ length: count }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    r: Math.random() * 1.4 + 0.3,
-    a: Math.random(),
-    s: Math.random() * 0.02 + 0.005
+    r: Math.random() * 1.3 + 0.2,
+    a: Math.random() * Math.PI * 2,
+    s: Math.random() * 0.02 + 0.004
   }));
 }
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const st of stars) {
     st.a += st.s;
-    const alpha = 0.4 + 0.6 * Math.abs(Math.sin(st.a));
+    const alpha = 0.25 + 0.55 * Math.abs(Math.sin(st.a));
     ctx.beginPath();
     ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(200, 190, 255, ${alpha})`;
+    ctx.fillStyle = "rgba(230, 200, 128, " + alpha + ")";
     ctx.fill();
   }
   requestAnimationFrame(draw);
