@@ -268,20 +268,20 @@
     pointer-events: none;
   }
   .card-back {
-    background: radial-gradient(circle at 50% 42%, #1a2a26 0%, #0b1512 60%, #060b09 100%);
-  }
-  .card-back .frame { border: 1px dashed #4a4028; opacity: 0.6; }
-  .card-back .emblem {
-    font-size: 3rem;
-    color: var(--brass-soft);
-    text-shadow: 0 0 22px var(--glow);
+    background: #0b1512 url("card-back.png") center / cover no-repeat;
+    justify-content: flex-end;
+    overflow: hidden;
   }
   .card-back .back-label {
-    margin-top: 14px;
-    font-size: 0.66rem;
+    margin: 0;
+    padding: 6px 18px;
+    border: 1px solid var(--brass);
+    border-radius: 20px;
+    background: rgba(6, 11, 9, 0.55);
+    color: var(--brass-soft);
+    font-size: 0.64rem;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--muted);
     font-family: "Helvetica Neue", Arial, sans-serif;
   }
   .card-front {
@@ -357,8 +357,6 @@
   <div class="card" id="card" role="button" tabindex="0" aria-label="Draw a tarot card">
     <div class="card-inner">
       <div class="card-face card-back">
-        <div class="frame"></div>
-        <div class="emblem">✦</div>
         <div class="back-label">Draw</div>
       </div>
       <div class="card-face card-front" id="cardFront">
